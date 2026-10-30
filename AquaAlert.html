@@ -1,0 +1,877 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AquaAlert | Smart Water Monitoring</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+:root{
+ --navy:#102b46;
+ --blue:#1677c8;
+ --cyan:#28b9d4;
+ --bg:#f1f6fa;
+ --white:#fff;
+ --text:#18344b;
+ --muted:#8495a4;
+ --line:#e3ebf1;
+ --green:#169b78;
+ --orange:#e89b38;
+ --red:#dc5c62;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+ font-family:'DM Sans',sans-serif;
+ background:var(--bg);color:var(--text);
+}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.layout{min-height:100vh}
+.sidebar{
+ width:250px;position:fixed;inset:0 auto 0 0;
+ background:var(--navy);color:white;padding:26px 19px;
+ display:flex;flex-direction:column;z-index:10;
+}
+.logo{font-family:'Space Grotesk';font-size:25px;font-weight:700;letter-spacing:-1px}
+.logo span{color:var(--cyan)}
+.logo-caption{font-size:10px;letter-spacing:2px;color:#9bb5ca;margin-top:5px}
+.nav-label{font-size:10px;color:#7f9ab0;letter-spacing:2px;margin:36px 10px 12px}
+.nav-btn{
+ width:100%;padding:13px 14px;border:0;border-radius:9px;
+ color:#b8cbd9;background:transparent;text-align:left;
+ display:flex;gap:13px;align-items:center;margin:4px 0;font-size:13px;
+}
+.nav-btn:hover,.nav-btn.active{background:#1d4868;color:white}
+.nav-btn.active{box-shadow:inset 3px 0 var(--cyan)}
+.nav-icon{font-size:19px;width:23px;text-align:center}
+.side-bottom{
+ margin-top:auto;background:#193d5b;padding:16px;border-radius:11px;
+ font-size:11px;color:#b8ccdc;line-height:1.8
+}
+.side-bottom strong{color:white;display:block;font-size:12px}
+.main{margin-left:250px;padding:27px 34px;min-height:100vh}
+.header{
+ display:flex;justify-content:space-between;align-items:center;
+ margin-bottom:26px;gap:15px
+}
+.header h1{font-family:'Space Grotesk';font-size:25px;color:var(--navy)}
+.header p{font-size:12px;color:var(--muted);margin-top:5px}
+.user-area{display:flex;align-items:center;gap:10px;font-size:12px;font-weight:700}
+.user-avatar{
+ width:39px;height:39px;background:#d7edf7;color:var(--blue);
+ border-radius:12px;display:grid;place-items:center;font-size:16px
+}
+.page{display:none}
+.page.active{display:block}
+.btn{
+ padding:11px 16px;border:0;border-radius:8px;
+ font-size:12px;font-weight:700;transition:.2s
+}
+.btn-blue{background:var(--blue);color:white}
+.btn-blue:hover{background:#105e9f}
+.btn-light{background:#e7f3fb;color:var(--blue)}
+.btn-outline{background:white;color:var(--text);border:1px solid var(--line)}
+.btn-red{background:#fff0f0;color:var(--red)}
+.btn-green{background:#e4f6ee;color:var(--green)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.hero{
+ padding:27px 29px;border-radius:15px;
+ background:linear-gradient(115deg,#103c62,#147fb5 65%,#29b5c9);
+ color:white;display:flex;justify-content:space-between;
+ align-items:center;gap:15px;margin-bottom:23px;overflow:hidden
+}
+.hero h2{font-family:'Space Grotesk';font-size:24px;margin-bottom:9px}
+.hero p{font-size:12px;color:#d5eefa;line-height:1.8;max-width:440px}
+.hero-art{font-size:76px;opacity:.85}
+.stats{
+ display:grid;grid-template-columns:repeat(4,1fr);
+ gap:15px;margin-bottom:22px
+}
+.stat{
+ background:white;border:1px solid var(--line);
+ border-radius:12px;padding:19px
+}
+.stat-head{display:flex;justify-content:space-between;align-items:center}
+.stat-label{font-size:11px;color:var(--muted);font-weight:600}
+.stat-icon{
+ width:37px;height:37px;border-radius:10px;
+ display:grid;place-items:center;font-size:19px;background:#eaf5fc
+}
+.stat h2{font-family:'Space Grotesk';font-size:27px;margin:13px 0 4px}
+.stat small{font-size:10px;color:var(--muted)}
+.content-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:17px}
+.panel{
+ background:white;border:1px solid var(--line);
+ border-radius:12px;padding:20px;margin-bottom:18px
+}
+.panel-title{
+ display:flex;justify-content:space-between;align-items:center;
+ gap:10px;margin-bottom:17px
+}
+.panel-title h3{font-size:15px;color:var(--navy)}
+.panel-title p{font-size:11px;color:var(--muted);margin-top:5px}
+.report-list{display:flex;flex-direction:column;gap:12px}
+.report-item{
+ display:flex;align-items:center;gap:12px;
+ padding:12px;background:#f8fbfd;border-radius:9px
+}
+.report-symbol{
+ width:40px;height:40px;border-radius:10px;
+ background:#e5f3fc;display:grid;place-items:center;font-size:20px
+}
+.report-info{flex:1;min-width:0}
+.report-info strong{font-size:12px;display:block}
+.report-info small{font-size:10px;color:var(--muted);display:block;margin-top:5px}
+.pill{
+ display:inline-block;border-radius:20px;padding:6px 9px;
+ font-size:9px;font-weight:700;white-space:nowrap
+}
+.Pending{background:#fff2df;color:#b47a1d}
+.In-Progress{background:#e5f3ff;color:#2378bd}
+.Resolved{background:#e4f6ed;color:#13815d}
+.critical{color:var(--red)}
+.normal{color:var(--green)}
+.progress-bg{height:9px;background:#eaf0f4;border-radius:20px;overflow:hidden;margin-top:10px}
+.progress-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--blue),var(--cyan))}
+.mini-stat{display:flex;justify-content:space-between;font-size:11px;margin:17px 0 7px}
+.page-heading{
+ display:flex;justify-content:space-between;align-items:center;
+ margin-bottom:20px;gap:12px
+}
+.page-heading h2{font-family:'Space Grotesk';font-size:20px}
+.page-heading p{font-size:11px;color:var(--muted);margin-top:5px}
+.toolbar{display:flex;gap:9px;margin-bottom:16px;flex-wrap:wrap}
+.field{
+ width:100%;border:1px solid var(--line);border-radius:8px;
+ padding:11px 12px;font-size:12px;background:white;
+ color:var(--text);outline:none
+}
+.field:focus{border-color:var(--cyan)}
+.search{flex:1;min-width:180px}
+.toolbar select{width:auto;min-width:140px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;white-space:nowrap}
+th{
+ background:#f7fafc;color:var(--muted);
+ text-align:left;padding:13px;font-size:10px;letter-spacing:.4px
+}
+td{padding:14px 13px;border-bottom:1px solid var(--line);font-size:11px}
+td strong{font-size:12px}
+.actions{display:flex;gap:5px}
+.action-btn{padding:7px 9px;border:0;border-radius:6px;font-size:10px;font-weight:700}
+.empty{text-align:center;padding:35px 10px;color:var(--muted);font-size:12px}
+.empty div{font-size:34px;margin-bottom:9px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.form-group{margin-bottom:12px}
+.form-group label{display:block;font-size:11px;font-weight:700;margin-bottom:7px}
+.full{grid-column:1/-1}
+textarea.field{resize:vertical}
+.modal-bg{
+ display:none;position:fixed;inset:0;background:#071b2bc7;
+ z-index:20;align-items:center;justify-content:center;padding:15px
+}
+.modal-bg.show{display:flex}
+.modal{
+ width:100%;max-width:520px;background:white;
+ padding:24px;border-radius:14px;max-height:92vh;overflow-y:auto
+}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:21px}
+.modal-header h2{font-size:19px}
+.close{border:0;background:#edf3f6;border-radius:50%;width:32px;height:32px;font-size:20px}
+.form-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:10px}
+.map-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.map-placeholder{
+ min-height:340px;border-radius:12px;
+ background-color:#e5f0f3;
+ background-image:linear-gradient(45deg,#ffffff40 25%,transparent 25%,transparent 75%,#ffffff40 75%),linear-gradient(45deg,#ffffff40 25%,transparent 25%,transparent 75%,#ffffff40 75%);
+ background-position:0 0,20px 20px;background-size:40px 40px;
+ display:grid;place-items:center;text-align:center;padding:20px;
+ border:1px solid #d6e5e9
+}
+.map-placeholder .map-icon{font-size:48px}
+.map-placeholder p{font-size:12px;color:#587c8a;margin-top:9px;line-height:1.7}
+.location-card{
+ border:1px solid var(--line);padding:14px;border-radius:10px;margin-bottom:10px
+}
+.location-card strong{font-size:12px}
+.location-card p{font-size:11px;color:var(--muted);margin-top:6px}
+.analytics-grid{display:grid;grid-template-columns:1fr 1fr;gap:17px}
+.bar-row{margin:18px 0}
+.bar-label{display:flex;justify-content:space-between;font-size:11px;margin-bottom:7px}
+.bar-track{height:11px;border-radius:15px;background:#edf2f6;overflow:hidden}
+.bar{height:100%;background:linear-gradient(90deg,#1677c8,#28b9d4);border-radius:15px}
+.legend{font-size:11px;color:var(--muted);line-height:2}
+.toast{
+ display:none;position:fixed;bottom:22px;right:22px;
+ background:#102b46;color:white;padding:14px 19px;
+ border-radius:9px;font-size:12px;z-index:30;box-shadow:0 5px 20px #0002
+}
+.toast.show{display:block}
+.footer{text-align:center;padding:20px;color:#9aaab5;font-size:10px}
+@media(max-width:1050px){
+ .stats{grid-template-columns:repeat(2,1fr)}
+ .content-grid{grid-template-columns:1fr}
+}
+@media(max-width:720px){
+ .sidebar{width:65px;padding:20px 7px}
+ .logo{font-size:0}.logo:first-letter{font-size:25px}
+ .logo-caption,.nav-label,.nav-text,.side-bottom{display:none}
+ .nav-label{margin:20px 0}
+ .nav-btn{justify-content:center;padding:13px 3px}
+ .main{margin-left:65px;padding:19px 12px}
+ .header h1{font-size:19px}
+ .header p{font-size:10px}
+ .user-name{display:none}
+ .hero{padding:20px}
+ .hero h2{font-size:19px}
+ .hero-art{font-size:46px}
+ .stats{gap:9px}
+ .stat{padding:12px}
+ .stat h2{font-size:23px}
+ .stat-label{font-size:10px}
+ .stat-icon{width:30px;height:30px}
+ .panel{padding:13px}
+ .map-layout,.analytics-grid{grid-template-columns:1fr}
+ .form-grid{grid-template-columns:1fr}
+ .full{grid-column:auto}
+ .page-heading h2{font-size:17px}
+}
+</style>
+</head>
+
+<body>
+<div class="layout">
+
+<aside class="sidebar">
+ <div class="logo">💧 Aqua<span>Alert</span></div>
+ <div class="logo-caption">SMART WATER MANAGEMENT</div>
+
+ <div class="nav-label">WORKSPACE</div>
+ <button class="nav-btn active" data-page="overview"><span class="nav-icon">▦</span><span class="nav-text">Overview</span></button>
+ <button class="nav-btn" data-page="reports"><span class="nav-icon">📋</span><span class="nav-text">Leakage Reports</span></button>
+ <button class="nav-btn" data-page="locations"><span class="nav-icon">📍</span><span class="nav-text">Locations</span></button>
+ <button class="nav-btn" data-page="analytics"><span class="nav-icon">📊</span><span class="nav-text">Analytics</span></button>
+
+ <div class="nav-label">INFORMATION</div>
+ <button class="nav-btn" data-page="about"><span class="nav-icon">ⓘ</span><span class="nav-text">About AquaAlert</span></button>
+
+ <div class="side-bottom">
+  <strong>💧 Every Drop Counts</strong>
+  Report leaks. Save water. Protect tomorrow.
+  <div style="margin-top:10px">AquaAlert · Version 1.0</div>
+ </div>
+</aside>
+
+<main class="main">
+
+<header class="header">
+ <div>
+  <h1 id="heading">Overview Dashboard</h1>
+  <p id="subheading">Community water monitoring and reporting center</p>
+ </div>
+ <div class="user-area">
+  <div class="user-avatar">AA</div>
+  <span class="user-name">Community User</span>
+ </div>
+</header>
+
+<!-- OVERVIEW -->
+<section class="page active" id="overview">
+
+ <div class="hero">
+  <div>
+   <h2>Save Water. Save the Future.</h2>
+   <p>Help your community identify water leakage, report damaged pipelines and prevent precious water from being wasted.</p>
+   <button class="btn" style="background:white;color:#126ca2;margin-top:17px" onclick="openModal()">+ Report a Leakage</button>
+  </div>
+  <div class="hero-art">💧</div>
+ </div>
+
+ <div class="stats">
+  <div class="stat">
+   <div class="stat-head"><span class="stat-label">Total Reports</span><div class="stat-icon">📋</div></div>
+   <h2 id="total">0</h2><small>All reported incidents</small>
+  </div>
+  <div class="stat">
+   <div class="stat-head"><span class="stat-label">Pending Issues</span><div class="stat-icon">⏳</div></div>
+   <h2 id="pending">0</h2><small>Awaiting attention</small>
+  </div>
+  <div class="stat">
+   <div class="stat-head"><span class="stat-label">In Progress</span><div class="stat-icon">🔧</div></div>
+   <h2 id="progress">0</h2><small>Under maintenance</small>
+  </div>
+  <div class="stat">
+   <div class="stat-head"><span class="stat-label">Resolved</span><div class="stat-icon">✓</div></div>
+   <h2 id="resolved">0</h2><small>Successfully completed</small>
+  </div>
+ </div>
+
+ <div class="content-grid">
+  <div class="panel">
+   <div class="panel-title">
+    <div><h3>Recent Leakage Reports</h3><p>Latest community complaints</p></div>
+    <button class="btn btn-light" onclick="navigate('reports')">View All →</button>
+   </div>
+   <div class="report-list" id="recentList"></div>
+   <div id="recentEmpty" class="empty" style="display:none">💧<br>No reports available.</div>
+  </div>
+
+  <div class="panel">
+   <div class="panel-title"><div><h3>Report Status</h3><p>Current complaint distribution</p></div></div>
+   <div class="mini-stat"><span>Pending</span><strong id="pCount">0</strong></div>
+   <div class="progress-bg"><div class="progress-fill" id="pBar"></div></div>
+   <div class="mini-stat"><span>In Progress</span><strong id="iCount">0</strong></div>
+   <div class="progress-bg"><div class="progress-fill" id="iBar"></div></div>
+   <div class="mini-stat"><span>Resolved</span><strong id="rCount">0</strong></div>
+   <div class="progress-bg"><div class="progress-fill" id="rBar"></div></div>
+   <div style="margin-top:24px;padding:14px;background:#eef8fc;border-radius:9px;font-size:11px;color:#39728c;line-height:1.8">
+    💡 Tip: Report even small leaks early to prevent major water loss.
+   </div>
+  </div>
+ </div>
+</section>
+
+<!-- REPORTS -->
+<section class="page" id="reports">
+ <div class="page-heading">
+  <div><h2>Leakage Reports</h2><p>View and manage all reported water leakage incidents.</p></div>
+  <button class="btn btn-blue" onclick="openModal()">+ New Report</button>
+ </div>
+
+ <div class="panel">
+  <div class="toolbar">
+   <input class="field search" id="search" placeholder="🔍 Search by title or location..." oninput="render()">
+   <select class="field" id="statusFilter" onchange="render()">
+    <option value="All">All Status</option>
+    <option>Pending</option>
+    <option>In Progress</option>
+    <option>Resolved</option>
+   </select>
+   <select class="field" id="severityFilter" onchange="render()">
+    <option value="All">All Severity</option>
+    <option>Low</option>
+    <option>Medium</option>
+    <option>High</option>
+    <option>Critical</option>
+   </select>
+  </div>
+
+  <div class="table-wrap">
+   <table>
+    <thead>
+     <tr><th>REPORT ID</th><th>ISSUE</th><th>LOCATION</th><th>SEVERITY</th><th>STATUS</th><th>ACTION</th></tr>
+    </thead>
+    <tbody id="reportRows"></tbody>
+   </table>
+  </div>
+  <div class="empty" id="reportEmpty" style="display:none">🔎<br>No matching reports found.</div>
+ </div>
+</section>
+
+<!-- LOCATIONS -->
+<section class="page" id="locations">
+ <div class="page-heading">
+  <div><h2>Leakage Locations</h2><p>Explore the reported problem areas in your community.</p></div>
+  <button class="btn btn-blue" onclick="navigate('reports')">View Reports</button>
+ </div>
+
+ <div class="map-layout">
+  <div class="map-placeholder">
+   <div>
+    <div class="map-icon">🗺️</div>
+    <strong>Community Location Overview</strong>
+    <p>This demonstration shows reported addresses and their status. A live interactive map can be integrated in a future version.</p>
+   </div>
+  </div>
+  <div class="panel">
+   <div class="panel-title"><div><h3>Reported Locations</h3><p>Location-wise incident details</p></div></div>
+   <div id="locationList"></div>
+   <div id="locationEmpty" class="empty" style="display:none">No locations reported.</div>
+  </div>
+ </div>
+</section>
+
+<!-- ANALYTICS -->
+<section class="page" id="analytics">
+ <div class="page-heading">
+  <div><h2>Water Monitoring Analytics</h2><p>Understand complaint trends and community performance.</p></div>
+  <button class="btn btn-outline" onclick="downloadCSV()">⬇ Export CSV</button>
+ </div>
+
+ <div class="stats">
+  <div class="stat"><span class="stat-label">Total Incidents</span><h2 id="aTotal">0</h2><small>All reports</small></div>
+  <div class="stat"><span class="stat-label">Resolved Rate</span><h2 id="aRate">0%</h2><small>Resolved reports / total reports</small></div>
+  <div class="stat"><span class="stat-label">High Priority</span><h2 id="aHigh">0</h2><small>High and critical reports</small></div>
+  <div class="stat"><span class="stat-label">Water Saved</span><h2 id="aWater">0</h2><small>Estimated litres per day</small></div>
+ </div>
+
+ <div class="analytics-grid">
+  <div class="panel">
+   <div class="panel-title"><div><h3>Complaints by Status</h3><p>Current status distribution</p></div></div>
+   <div id="statusChart"></div>
+  </div>
+  <div class="panel">
+   <div class="panel-title"><div><h3>Complaints by Severity</h3><p>Reported problem intensity</p></div></div>
+   <div id="severityChart"></div>
+  </div>
+ </div>
+
+ <div class="panel">
+  <h3 style="font-size:14px;margin-bottom:10px">About the Water Saved Estimate</h3>
+  <p style="font-size:11px;color:var(--muted);line-height:1.8">
+   The water saved figure is an illustrative estimate based on the daily leakage quantity entered for resolved reports. It is not a verified measurement of actual water savings.
+  </p>
+ </div>
+</section>
+
+<!-- ABOUT -->
+<section class="page" id="about">
+ <div class="hero">
+  <div>
+   <h2>About AquaAlert</h2>
+   <p>A community-powered digital solution designed to improve water conservation through faster leakage reporting and complaint tracking.</p>
+  </div>
+  <div class="hero-art">🌊</div>
+ </div>
+
+ <div class="content-grid">
+  <div class="panel">
+   <h3 style="font-size:15px;margin-bottom:13px">Our Mission</h3>
+   <p style="font-size:12px;line-height:2;color:var(--muted)">
+    Water leakage is a serious problem that can waste valuable drinking water. AquaAlert provides a simple reporting interface where citizens can submit complaints, identify affected locations and follow their resolution status.
+   </p>
+  </div>
+  <div class="panel">
+   <h3 style="font-size:15px;margin-bottom:13px">Project Technologies</h3>
+   <div class="legend">
+    HTML5 – Web page structure<br>
+    CSS3 – Responsive user interface<br>
+    JavaScript – Application functionality<br>
+    LocalStorage – Browser data persistence
+   </div>
+  </div>
+ </div>
+
+ <div class="panel">
+  <h3 style="font-size:15px;margin-bottom:13px">How It Works</h3>
+  <div class="report-list">
+   <div class="report-item"><div class="report-symbol">📍</div><div class="report-info"><strong>1. Identify a Leakage</strong><small>Find and record a water leakage issue in your locality.</small></div></div>
+   <div class="report-item"><div class="report-symbol">📝</div><div class="report-info"><strong>2. Submit a Report</strong><small>Provide the location, issue type and severity.</small></div></div>
+   <div class="report-item"><div class="report-symbol">🔧</div><div class="report-info"><strong>3. Track the Progress</strong><small>Follow the complaint from pending to resolution.</small></div></div>
+   <div class="report-item"><div class="report-symbol">💧</div><div class="report-info"><strong>4. Save Water</strong><small>Monitor estimated water conservation through resolved reports.</small></div></div>
+  </div>
+ </div>
+</section>
+
+<div class="footer">AquaAlert © 2026 · Smart Water Management System · Every Drop Counts</div>
+
+</main>
+</div>
+
+<!-- REPORT MODAL -->
+<div class="modal-bg" id="modal">
+ <div class="modal">
+  <div class="modal-header">
+   <h2>📍 Report Water Leakage</h2>
+   <button class="close" onclick="closeModal()">×</button>
+  </div>
+
+  <form id="reportForm">
+   <div class="form-grid">
+
+    <div class="form-group full">
+     <label>Leakage Title *</label>
+     <input class="field" id="title" placeholder="Example: Main pipeline leakage" required maxlength="70">
+    </div>
+
+    <div class="form-group">
+     <label>Leakage Type *</label>
+     <select class="field" id="type" required>
+      <option value="">Choose type</option>
+      <option>Pipeline Leakage</option>
+      <option>Public Tap Leakage</option>
+      <option>Roadside Water Overflow</option>
+      <option>Tank Overflow</option>
+      <option>Damaged Water Connection</option>
+      <option>Other</option>
+     </select>
+    </div>
+
+    <div class="form-group">
+     <label>Severity *</label>
+     <select class="field" id="severity" required>
+      <option value="">Choose severity</option>
+      <option>Low</option>
+      <option>Medium</option>
+      <option>High</option>
+      <option>Critical</option>
+     </select>
+    </div>
+
+    <div class="form-group full">
+     <label>Exact Location *</label>
+     <input class="field" id="location" placeholder="Street, area, city" required maxlength="120">
+    </div>
+
+    <div class="form-group">
+     <label>Reporter Name *</label>
+     <input class="field" id="reporter" placeholder="Your name" required maxlength="50">
+    </div>
+
+    <div class="form-group">
+     <label>Contact Number *</label>
+     <input class="field" id="phone" type="tel" pattern="[0-9]{10}" placeholder="10-digit number" required>
+    </div>
+
+    <div class="form-group">
+     <label>Estimated Water Loss (litres/day)</label>
+     <input class="field" id="waterLoss" type="number" min="0" max="1000000" value="0">
+    </div>
+
+    <div class="form-group">
+     <label>Report Date</label>
+     <input class="field" id="reportDate" type="date" required>
+    </div>
+
+    <div class="form-group full">
+     <label>Description *</label>
+     <textarea class="field" id="description" rows="3" placeholder="Explain the leakage problem..." required maxlength="400"></textarea>
+    </div>
+   </div>
+
+   <div class="form-actions">
+    <button type="button" class="btn btn-outline" onclick="closeModal()">Cancel</button>
+    <button type="submit" class="btn btn-blue">Submit Report →</button>
+   </div>
+  </form>
+ </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// AQUAALERT - JAVASCRIPT APPLICATION
+
+const KEY="aquaalert_reports_v1";
+
+function demoReports(){
+ const today=new Date().toISOString().slice(0,10);
+ return [
+  {id:1001,title:"Main Pipeline Leakage",type:"Pipeline Leakage",severity:"Critical",location:"Anna Nagar, Chennai",reporter:"Community Member",phone:"9876543210",waterLoss:450,reportDate:today,description:"Continuous water leakage near the main pipeline.",status:"Pending"},
+  {id:1002,title:"Public Tap Overflow",type:"Public Tap Leakage",severity:"Medium",location:"Avadi, Chennai",reporter:"Local Resident",phone:"9876543211",waterLoss:100,reportDate:today,description:"Water is overflowing from a public tap.",status:"In Progress"},
+  {id:1003,title:"Roadside Water Leakage",type:"Roadside Water Overflow",severity:"High",location:"Ambattur, Chennai",reporter:"Community Member",phone:"9876543212",waterLoss:250,reportDate:today,description:"Water flowing continuously beside the road.",status:"Resolved"}
+ ];
+}
+
+function loadReports(){
+ try{
+  const saved=localStorage.getItem(KEY);
+  return saved===null?demoReports():JSON.parse(saved);
+ }catch(e){return demoReports()}
+}
+
+let reports=loadReports();
+
+function save(){
+ localStorage.setItem(KEY,JSON.stringify(reports));
+}
+
+function esc(v){
+ return String(v??"").replace(/[&<>"']/g,c=>({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+ }[c]));
+}
+
+function toast(message){
+ const t=document.getElementById("toast");
+ t.textContent=message;
+ t.classList.add("show");
+ clearTimeout(window.toastTimeout);
+ window.toastTimeout=setTimeout(()=>t.classList.remove("show"),2600);
+}
+
+function badge(status){
+ return `<span class="pill ${status.replace(" ","-")}">${esc(status)}</span>`;
+}
+
+function severityColor(s){
+ return s==="Critical"||s==="High"?"critical":s==="Medium"?"normal":"";
+}
+
+// NAVIGATION
+const pageInfo={
+ overview:["Overview Dashboard","Community water monitoring and reporting center"],
+ reports:["Leakage Reports","Manage and track reported water incidents"],
+ locations:["Leakage Locations","Explore affected community locations"],
+ analytics:["Water Analytics","Monitor complaints and conservation estimates"],
+ about:["About AquaAlert","Learn about the water management project"]
+};
+
+function navigate(page){
+ document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+ document.getElementById(page).classList.add("active");
+
+ document.querySelectorAll(".nav-btn").forEach(b=>{
+  b.classList.toggle("active",b.dataset.page===page);
+ });
+
+ document.getElementById("heading").textContent=pageInfo[page][0];
+ document.getElementById("subheading").textContent=pageInfo[page][1];
+ render();
+}
+
+document.querySelectorAll(".nav-btn").forEach(b=>{
+ b.addEventListener("click",()=>navigate(b.dataset.page));
+});
+
+// MODAL
+function openModal(){
+ document.getElementById("modal").classList.add("show");
+ document.getElementById("reportDate").value=new Date().toISOString().slice(0,10);
+}
+
+function closeModal(){
+ document.getElementById("modal").classList.remove("show");
+ document.getElementById("reportForm").reset();
+}
+
+document.getElementById("modal").addEventListener("click",e=>{
+ if(e.target.id==="modal")closeModal();
+});
+
+// CREATE REPORT
+document.getElementById("reportForm").addEventListener("submit",e=>{
+ e.preventDefault();
+
+ const water=Number(document.getElementById("waterLoss").value);
+ if(!Number.isFinite(water)||water<0||water>1000000){
+  toast("Enter a valid estimated water loss.");
+  return;
+ }
+
+ const date=document.getElementById("reportDate").value;
+ if(date>new Date().toISOString().slice(0,10)){
+  toast("Report date cannot be in the future.");
+  return;
+ }
+
+ const report={
+  id:Date.now(),
+  title:document.getElementById("title").value.trim(),
+  type:document.getElementById("type").value,
+  severity:document.getElementById("severity").value,
+  location:document.getElementById("location").value.trim(),
+  reporter:document.getElementById("reporter").value.trim(),
+  phone:document.getElementById("phone").value.trim(),
+  waterLoss:water,
+  reportDate:date,
+  description:document.getElementById("description").value.trim(),
+  status:"Pending"
+ };
+
+ reports.unshift(report);
+ save();
+ closeModal();
+ navigate("reports");
+ toast("Leakage report submitted successfully!");
+});
+
+// REPORT STATUS
+function updateStatus(id){
+ const item=reports.find(r=>r.id===id);
+ if(!item)return;
+
+ if(item.status==="Pending"){
+  item.status="In Progress";
+ }else if(item.status==="In Progress"){
+  item.status="Resolved";
+ }else{
+  toast("This report is already resolved.");
+  return;
+ }
+
+ save();
+ render();
+ toast("Report status updated to "+item.status+".");
+}
+
+// DELETE
+function deleteReport(id){
+ if(!confirm("Are you sure you want to delete this report?"))return;
+
+ reports=reports.filter(r=>r.id!==id);
+ save();
+ render();
+ toast("Report deleted successfully.");
+}
+
+// STATUS ACTION BUTTON
+function statusAction(r){
+ if(r.status==="Pending"){
+  return `<button class="action-btn btn-light" onclick="updateStatus(${r.id})">Start</button>`;
+ }
+ if(r.status==="In Progress"){
+  return `<button class="action-btn btn-green" onclick="updateStatus(${r.id})">Resolve</button>`;
+ }
+ return `<span style="font-size:10px;color:#16845b">Completed ✓</span>`;
+}
+
+// TABLE
+function renderTable(){
+ const query=(document.getElementById("search")?.value||"").toLowerCase();
+ const status=document.getElementById("statusFilter")?.value||"All";
+ const severity=document.getElementById("severityFilter")?.value||"All";
+
+ const filtered=reports.filter(r=>{
+  const matches=(r.title+" "+r.location+" "+r.type).toLowerCase().includes(query);
+  return matches&&(status==="All"||r.status===status)&&(severity==="All"||r.severity===severity);
+ });
+
+ document.getElementById("reportRows").innerHTML=filtered.map(r=>`
+ <tr>
+  <td><strong>#${r.id}</strong></td>
+  <td><strong>${esc(r.title)}</strong><br><span style="color:#8495a4;font-size:10px">${esc(r.type)}</span></td>
+  <td>${esc(r.location)}</td>
+  <td><span class="${severityColor(r.severity)}">${esc(r.severity)}</span></td>
+  <td>${badge(r.status)}</td>
+  <td><div class="actions">
+   ${statusAction(r)}
+   <button class="action-btn btn-red" onclick="deleteReport(${r.id})">Delete</button>
+  </div></td>
+ </tr>`).join("");
+
+ document.getElementById("reportEmpty").style.display=filtered.length?"none":"block";
+}
+
+// DASHBOARD
+function renderDashboard(){
+ const count=s=>reports.filter(r=>r.status===s).length;
+ const total=reports.length;
+ const pending=count("Pending");
+ const progress=count("In Progress");
+ const resolved=count("Resolved");
+
+ document.getElementById("total").textContent=total;
+ document.getElementById("pending").textContent=pending;
+ document.getElementById("progress").textContent=progress;
+ document.getElementById("resolved").textContent=resolved;
+
+ const values=[
+  ["pCount","pBar",pending],
+  ["iCount","iBar",progress],
+  ["rCount","rBar",resolved]
+ ];
+
+ values.forEach(([label,bar,value])=>{
+  document.getElementById(label).textContent=value;
+  document.getElementById(bar).style.width=(total?value/total*100:0)+"%";
+ });
+
+ const recent=reports.slice().sort((a,b)=>b.id-a.id).slice(0,5);
+ document.getElementById("recentList").innerHTML=recent.map(r=>`
+  <div class="report-item">
+   <div class="report-symbol">💧</div>
+   <div class="report-info">
+    <strong>${esc(r.title)}</strong>
+    <small>📍 ${esc(r.location)}</small>
+   </div>
+   ${badge(r.status)}
+  </div>`).join("");
+
+ document.getElementById("recentEmpty").style.display=recent.length?"none":"block";
+}
+
+// LOCATION LIST
+function renderLocations(){
+ const groups={};
+ reports.forEach(r=>{
+  groups[r.location]=(groups[r.location]||0)+1;
+ });
+
+ const entries=Object.entries(groups);
+ document.getElementById("locationList").innerHTML=entries.map(([location,count])=>`
+  <div class="location-card">
+   <strong>📍 ${esc(location)}</strong>
+   <p>${count} reported incident${count!==1?"s":""}</p>
+  </div>`).join("");
+
+ document.getElementById("locationEmpty").style.display=entries.length?"none":"block";
+}
+
+// ANALYTICS
+function drawChart(container,items){
+ const total=reports.length;
+ document.getElementById(container).innerHTML=items.map(([label,count])=>`
+  <div class="bar-row">
+   <div class="bar-label"><span>${esc(label)}</span><strong>${count}</strong></div>
+   <div class="bar-track"><div class="bar" style="width:${total?count/total*100:0}%"></div></div>
+  </div>`).join("");
+}
+
+function renderAnalytics(){
+ const count=s=>reports.filter(r=>r.status===s).length;
+ const total=reports.length;
+ const resolved=count("Resolved");
+ const high=reports.filter(r=>r.severity==="High"||r.severity==="Critical").length;
+
+ const water=reports.filter(r=>r.status==="Resolved").reduce((sum,r)=>sum+Number(r.waterLoss||0),0);
+
+ document.getElementById("aTotal").textContent=total;
+ document.getElementById("aRate").textContent=(total?Math.round(resolved/total*100):0)+"%";
+ document.getElementById("aHigh").textContent=high;
+ document.getElementById("aWater").textContent=water.toLocaleString("en-IN")+" L";
+
+ drawChart("statusChart",[
+  ["Pending",count("Pending")],
+  ["In Progress",count("In Progress")],
+  ["Resolved",resolved]
+ ]);
+
+ const types=["Low","Medium","High","Critical"];
+ drawChart("severityChart",types.map(s=>[
+  s,reports.filter(r=>r.severity===s).length
+ ]));
+}
+
+// EXPORT CSV
+function downloadCSV(){
+ if(!reports.length){
+  toast("No reports available to export.");
+  return;
+ }
+
+ const columns=["ID","Title","Type","Severity","Location","Reporter","Phone","Water Loss (L/day)","Date","Description","Status"];
+ const rows=reports.map(r=>[
+  r.id,r.title,r.type,r.severity,r.location,r.reporter,r.phone,
+  r.waterLoss,r.reportDate,r.description,r.status
+ ]);
+
+ const csv=[columns,...rows].map(row=>
+  row.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")
+ ).join("\r\n");
+
+ const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement("a");
+ a.href=url;
+ a.download="AquaAlert_Reports.csv";
+ a.click();
+ URL.revokeObjectURL(url);
+ toast("CSV report downloaded!");
+}
+
+// REFRESH ALL PAGES
+function render(){
+ renderDashboard();
+ renderTable();
+ renderLocations();
+ renderAnalytics();
+}
+
+render();
+</script>
+</body>
+</html>
